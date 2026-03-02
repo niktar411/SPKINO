@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Cinema Pro Admin</title>
+    <!-- Подключим Bootstrap для красоты (опционально) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; background-color: #f8f9fa; }
+        .card { margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .poster-img { max-height: 100px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mb-4 text-center">🎬 Управление Кинотеатром</h1>
+
+    <div class="row">
+        <!-- Блок 1: Добавление фильма по ID -->
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h3 class="text-primary">Добавить сеанс (API)</h3>
+                <p class="text-muted">Введите IMDB ID (например: tt3896198) и время сеанса.</p>
+                
+                <form action="/add_api_movie" method="post">
+                    <div class="mb-3">
+                        <label for="imdb_id" class="form-label">IMDB ID Фильма</label>
+                        <input type="text" class="form-control" name="imdb_id" id="imdb_id" placeholder="tt3896198" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="session_time" class="form-label">Время сеанса</label>
+                        <input type="datetime-local" class="form-control" name="session_time" id="session_time" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="hall" class="form-label">Зал</label>
+                        <input type="text" class="form-control" name="hall" placeholder="Выберите зал" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="price" class="form-label">Цена</label>
+                        <input type="text" class="form-control" name="price" placeholder="Укажите цену билета" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Найти фильм и создать сеанс</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Список текущих билетов -->
+    <h2 class="mt-5">Сеансы</h2>
+    <table class="table table-striped table-hover bg-white rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Id_фильма</th>
+                <th>Начало сеанса</th>
+                <th>Зал</th>
+                <th>Ряды</th>
+                <th>Места</th>
+                <th>Цена</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions[:30] %}
+            <tr>
+                <td>{{ session.id }}</td>
+                <td>{{ session.movie_id }}</td>
+                <td>{{ session.start_time.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ session.hall }}</td>
+                <td>{{ session.row }}</td>
+                <td>{{ session.seat }}</td>
+                <td>{{ session.price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Список загруженных фильмов -->
+    <h2 class="mt-5">База фильмов</h2>
+    <div class="row">
+        {% for movie in movies[:5] %}
+        <div class="col-md-4">
+            <div class="card">
+                <div class="row g-0">
+                    <div class="col-4">
+                        {% if movie.poster and movie.poster != "N/A" %}
+                        <img src="{{ movie.poster }}" class="img-fluid rounded-start" alt="...">
+                        {% else %}
+                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center h-100">Нет фото</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ movie.title }}</h5>
+                            <p class="card-text"><small class="text-muted">{{ movie.year }} | Rating: {{ movie.imdb_rating }}</small></p>
+                            <p class="card-text text-truncate">id: {{ movie.id }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Список текущих билетов -->
+    <h2 class="mt-5">Активные билеты</h2>
+    <table class="table table-striped table-hover bg-white rounded">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Id_фильма</th>
+                <th>Начало сеанса</th>
+                <th>Зал</th>
+                <th>Ряд</th>
+                <th>Место</th>
+                <th>email</th>
+                <th>Цена</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ticket in tickets[:50] %} 
+            <tr>
+                <td>{{ ticket.id }}</td>
+                <td>{{ ticket.movie_id }}</td>
+                <td>{{ ticket.start_time.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ ticket.hall }}</td>
+                <td>{{ ticket.row }}</td>
+                <td>{{ ticket.seat }}</td>
+                <td>{{ ticket.email }}</td>
+                <td>{{ ticket.price }}</td>
+                <td>{{ "Свободно" if ticket.is_available else Занято }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

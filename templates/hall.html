@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор мест | {{ movie_title }}</title>
+    <!-- Шрифты и Иконки -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- ПОДКЛЮЧАЕМ ВЫНЕСЕННЫЙ CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', path='hall.css') }}">
+</head>
+<body>
+
+    <div class="top-bar">
+        <a href="/" class="back-link"><i class="fas fa-arrow-left"></i> К афише</a>
+        <h1 class="movie-title">{{ movie_title }}</h1>
+        <div style="width: 80px;"></div>
+    </div>
+
+    <ul class="showcase">
+        <li><div class="seat"></div> Свободно</li>
+        <li><div class="seat selected"></div> Выбрано</li>
+        <li><div class="seat occupied"></div> Занято</li>
+    </ul>
+
+    <div class="cinema-room">
+        <div class="screen"></div>
+        
+        <!-- Генерируем 5 рядов -->
+        {% for row_num in range(1, 6) %}
+        <div class="row">
+            <!-- Генерируем 8 мест в каждом ряду -->
+            {% for seat_num in range(1, 9) %}
+                
+                <!-- Логика проверки: занято ли место? -->
+                {% set ns = namespace(is_occupied=false) %}
+                
+                {% for ticket in tickets %}
+                    <!-- Сравниваем текущие координаты с координатами в купленном билете -->
+                    <!-- Убедитесь, что в БД поля называются row и seat (или поправьте тут) -->
+                    {% if ticket.row == row_num and ticket.seat == seat_num %}
+                        {% set ns.is_available = True %}
+                    {% endif %}
+                {% endfor %}
+
+                <!-- Рендерим место -->
+                <div class="seat {{ 'occupied' if ns.is_occupied else '' }}" 
+                     data-row="{{ row_num }}" 
+                     data-seat="{{ seat_num }}">
+                </div>
+
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="checkout-panel">
+        <div class="summary">
+            <p>Билеты: <span id="count">0</span> шт.</p>
+            <p>Сумма: <span id="total">0</span> ₽</p>
+        </div>
+        <button class="btn-buy" id="checkout-btn">Купить билеты</button>
+    </div>
+
+    <!-- Скорее всего вам понадобится скрипт для выбора мест -->
+    <script>
+        const container = document.querySelector('.cinema-room');
+        const count = document.getElementById('count');
+        const total = document.getElementById('total');
+        // Задайте цену билета
+        const ticketPrice = 300; 
+
+        // Обновление итогов
+        function updateSelectedCount() {
+            const selectedSeats = document.querySelectorAll('.row .seat.selected');
+            const selectedSeatsCount = selectedSeats.length;
+            count.innerText = selectedSeatsCount;
+            total.innerText = selectedSeatsCount * ticketPrice;
+        }
+
+        // Клик по местам
+        container.addEventListener('click', e => {
+            if (e.target.classList.contains('seat') && !e.target.classList.contains('occupied')) {
+                e.target.classList.toggle('selected');
+                updateSelectedCount();
+            }
+        });
+    </script>
+</body>
+</html>
