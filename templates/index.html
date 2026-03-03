@@ -42,21 +42,42 @@
         </div>
 
         <div class="movies-grid">
-            {% for movie in movies %}
-            <div class="movie-card">
-                <div class="movie-rating"><i class="fas fa-star"></i> {{ movie.imdb_rating }}</div>
-                <img src="{{ movie.poster }}" alt="{{ movie.title }}" class="movie-poster">
-                <div class="movie-overlay">
-                    <h3 class="movie-title">{{ movie.title }}</h3>
-                    <p class="movie-genre">{{ movie.genre }}</p>
-                    <button class="btn-ticket" data-id="{{ movie.id }}">Сеансы и билеты</button>
+        {% for movie in movies %}
+        <div class="movie-card">
+            <div class="movie-rating"><i class="fas fa-star"></i> {{ movie.movie.imdb_rating }}</div>
+            <img src="{{ movie.movie.poster }}" alt="{{ movie.movie.title }}" class="movie-poster">
+            <div class="movie-overlay">
+                <h3 class="movie-title">{{ movie.movie.title }}</h3>
+                <p class="movie-genre">{{ movie.movie.genre }}</p>
+                
+                <!-- Выбор сеанса -->
+                <div class="sessions-container">
+                    <p class="sessions-title">Выберите время:</p>
+                    <div class="sessions-list">
+                        
+                        <!-- ВАЖНО: обращаемся к списку сеансов конкретного фильма -->
+                        {% for session in movie.sessions %}
+                        <button class="btn-time" 
+                                data-movie-id="{{ session.movie_id }}" 
+                                data-session-id="{{ session.id }}">
+                            <span class="time">{{ session.start_time.strftime('%H:%M') }}</span>
+                            <span class="price">{{ session.price }} ₽</span>
+                        </button>
+                        {% else %}
+                            <!-- На случай, если у фильма нет сеансов -->
+                            <p class="no-sessions">Нет доступных сеансов</p>
+                        {% endfor %}
+                        
+                    </div>
                 </div>
             </div>
-            {% endfor %}
+        </div>
+        {% endfor %}
         </div>
     </section>
 
     <script>
+        // Навигация (остается без изменений)
         const navbar = document.getElementById('navbar');
         window.onscroll = () => {
             if (window.scrollY > 50) {
@@ -65,17 +86,6 @@
                 navbar.classList.remove('scrolled');
             }
         };
-
-        const buttons = document.querySelectorAll('.btn-ticket');
-        buttons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                // Получаем название фильма
-                const movie_id = btn.getAttribute('data-id');
-                // Переходим по ссылке, кодируя пробелы и кириллицу для URL
-                window.location.href = `/${movie_id}/hall-seats`;
-            });
-        });
     </script>
 </body>
 </html>

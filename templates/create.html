@@ -19,13 +19,28 @@
         <!-- Блок 1: Добавление фильма по ID -->
         <div class="col-md-6">
             <div class="card p-4">
-                <h3 class="text-primary">Добавить сеанс (API)</h3>
-                <p class="text-muted">Введите IMDB ID (например: tt3896198) и время сеанса.</p>
+                <h3 class="text-primary">Добавить фильм (API)</h3>
+                <p class="text-muted">Введите IMDB ID (например: tt3896198)</p>
                 
                 <form action="/add_api_movie" method="post">
                     <div class="mb-3">
                         <label for="imdb_id" class="form-label">IMDB ID Фильма</label>
                         <input type="text" class="form-control" name="imdb_id" id="imdb_id" placeholder="tt3896198" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Найти фильм</button>
+                </form>
+            </div>
+        </div>
+        <!-- Блок 2: Ручное добавление фильма -->
+        <div class="col-md-6">
+            <div class="card p-4">
+                <h3 class="text-primary">Добавить фильм (API)</h3>
+                <p class="text-muted">Введите IMDB ID (например: tt3896198)</p>
+                
+                <form action="/add_api_session" method="post">
+                    <div class="mb-3">
+                        <label for="movie_id" class="form-label">ID фильма</label>
+                        <input type="text" class="form-control" name="movie_id" placeholder="Введите ID фильма" required>
                     </div>
                     <div class="mb-3">
                         <label for="session_time" class="form-label">Время сеанса</label>
@@ -39,7 +54,7 @@
                         <label for="price" class="form-label">Цена</label>
                         <input type="text" class="form-control" name="price" placeholder="Укажите цену билета" required>
                     </div>
-                    <button type="submit" class="btn btn-primary w-100">Найти фильм и создать сеанс</button>
+                    <button type="submit" class="btn btn-primary w-100">Создать сеанс</button>
                 </form>
             </div>
         </div>
@@ -77,7 +92,7 @@
     <!-- Список загруженных фильмов -->
     <h2 class="mt-5">База фильмов</h2>
     <div class="row">
-        {% for movie in movies[:5] %}
+        {% for movie in movies[::-1][:6] %}
         <div class="col-md-4">
             <div class="card">
                 <div class="row g-0">
