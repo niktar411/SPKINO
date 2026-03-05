@@ -1,6 +1,6 @@
 from src.database import model
 
-def get_db():
+async def get_db():
     db = model.SessionLocal()
     try:
         yield db

@@ -1,20 +1,15 @@
-from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, Text
-from sqlalchemy.orm import sessionmaker, declarative_base, DeclarativeBase
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Text
+from sqlalchemy.orm import declarative_base, DeclarativeBase
 from sqlalchemy.ext.asyncio import create_async_engine, async_session, async_sessionmaker
 from datetime import datetime
 from src.database.config import DBConfig
 
 config = DBConfig()
 
-# Настройка базы данных
-# SQLALCHEMY_DATABASE_URL = "sqlite:///./cinema_pro.db"
-# engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 # Настройка базы данных (асинхронный вариант)
 SQLALCHEMY_DATABASE_URL = config.url
 engine = create_async_engine(SQLALCHEMY_DATABASE_URL)
-session_maker = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = async_sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):
@@ -85,8 +80,9 @@ class MovieTicket(Base):
 
 
 # Создание таблиц
-def init_db():
-    Base.metadata.create_all(bind=engine)
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 def insert_movie_to_db(db, movie_data):

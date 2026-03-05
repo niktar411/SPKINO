@@ -1,32 +1,36 @@
 from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from collections import defaultdict
 from src.utils.log import logger
 from src.database import model
 from src.backend.routes import routers
 from contextlib import asynccontextmanager
+from pathlib import Path
 
-templates = Jinja2Templates(directory="src/templates")
+templates = Jinja2Templates(directory=Path(__file__).parent.parent / "frontend" / "templates")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Запуск приложения")
-    model.init_db()
+    await model.init_db()
 
     for router in routers:
         app.include_router(router)
     yield
     logger.info("Завершил работу")
 
-app = FastAPI(lifespan=lifespan) 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app = FastAPI(lifespan=lifespan)
+
+static_path = Path(__file__).parent.parent / "frontend" / "static"
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 
 
 # Зависимость для получения сессии БД
-def get_db():
+async def get_db():
     db = model.SessionLocal()
     try:
         yield db
@@ -36,11 +40,9 @@ def get_db():
 @app.get("/")
 async def home(request: Request, db: Session = Depends(get_db)):
 
-    sessions = db.query(model.MovieSessions).order_by(model.MovieSessions.start_time).all()
-
-    # dates = [session.start_time for session in sessions]
-    # sorted_dates = sorted(dates)
-    # formated_dates = [date.strftime("%m.%d.%Y %H:%M") for date in sorted_dates]
+    stmt = select(model.MovieSessions).order_by(model.MovieSessions.start_time)
+    result = await db.execute(stmt)
+    sessions = result.scalars().all()
     
     data = {session.start_time for session in sessions}
     print([s.strftime("%d-%m-%Y %H:%M") for s in data])
