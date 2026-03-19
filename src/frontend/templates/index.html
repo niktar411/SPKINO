@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КиноБилет | Главная</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', path='style.css') }}">
+</head>
+<body>
+
+    <nav id="navbar">
+        <a href="/" class="logo">SP<span>KINO</span></a>
+        <ul class="nav-links">
+            <li><a href="#">Афиша</a></li>
+            <li><a href="#">Скоро в кино</a></li>
+            <li><a href="#">Акции</a></li>
+        </ul>
+        <div class="address" style="color: #a1a1aa; font-size: 14px;">
+            <p><i class="fas fa-map-marker-alt" style="color: #e50914;"></i> г. Сургут, ул. Пушкина 10/1, д. 10</p>
+        </div>
+        <div class="user-actions">
+            <i class="far fa-user-circle"></i>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <span class="badge">Премьера недели</span>
+            <h1>Дюна: Часть вторая</h1>
+            <p>Грандиозное продолжение эпической саги. Пол Атрейдес объединяется с Чани и фременами, чтобы отомстить заговорщикам, уничтожившим его семью.</p>
+            <button class="btn-primary">
+                <i class="fas fa-play"></i> Смотреть трейлер
+            </button>
+        </div>
+    </section>
+
+    <section class="now-showing">
+        <div class="section-header">
+            <h2>Сейчас в кино</h2>
+            <a href="#" class="view-all">Показать все <i class="fas fa-arrow-right"></i></a>
+        </div>
+
+        <div class="movies-grid">
+        {% for movie in movies %}
+        <div class="movie-card-wrapper">
+            <!-- Левая часть: постер с наложением -->
+            <div class="movie-card">
+                <div class="movie-rating"><i class="fas fa-star"></i> {{ movie.movie.imdb_rating }}</div>
+                <img src="{{ movie.movie.poster }}" alt="{{ movie.movie.title }}" class="movie-poster">
+                <div class="movie-overlay">
+                    <h3 class="movie-title">{{ movie.movie.title }}</h3>
+                    <p class="movie-genre">{{ movie.movie.genre }}</p>
+                </div>
+            </div>
+
+            <!-- Правая панель: всегда видимый выбор времени -->
+            <div class="sessions-panel">
+                <p class="sessions-title">Выберите время:</p>
+                <div class="sessions-list">
+                    {% for session in movie.sessions %}
+                    <button class="btn-time" 
+                            data-movie-id="{{ session.movie_id }}" 
+                            data-session-id="{{ session.id }}">
+                        <span class="time">{{ session.start_time.strftime('%m-%d %H:%M') }}</span>
+                        <span class="price">{{ session.price }} ₽</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        </div>
+    </section>
+
+    <script>
+        // Навигация (остается без изменений)
+        const navbar = document.getElementById('navbar');
+        window.onscroll = () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        };
+    </script>
+</body>
+</html>
